@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bidang Kurikulum Pesantren Ar-Rahmah Dewan Dakwah Sukabumi</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Plus Jakarta Sans',sans-serif}.font-amiri{font-family:'Amiri',serif}</style>
+</head>
+<body class="bg-slate-50">
+<script>
+const firebaseConfig={apiKey:"GANTI_API_KEY_ANDA",authDomain:"arrahmah.firebaseapp.com",databaseURL:"https://arrahmah-default-rtdb.firebaseio.com",projectId:"arrahmah",storageBucket:"arrahmah.appspot.com",messagingSenderId:"123",appId:"1:123:web:abc"};
+try{firebase.initializeApp(firebaseConfig)}catch(e){};const db=firebase.database();
+const SANTRI_DATA=[{name:"Fahman Wasi'an",kelas:"8A"},{name:"Farhan Sudirman Karim",kelas:"8B"},{name:"Ilham Tanarubun",kelas:"7A"},{name:"Muhammad Azwa Putra",kelas:"7B"},{name:"Muhammad Basyir",kelas:"8A"},{name:"Muhammad Luthfi Abdillah",kelas:"9A"},{name:"Muhammad Rifki Ramadhan",kelas:"9B"},{name:"Rahmad Darmawan",kelas:"9A"}];
+</script>
+<div id="page-login" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-950 to-teal-800 p-4">
+<div class="bg-white w-full max-w-[460px] rounded-[24px] p-8 shadow-2xl">
+<div class="text-center mb-6"><div class="w-14 h-14 bg-emerald-900 text-white rounded-2xl flex items-center justify-center mx-auto mb-3 font-amiri font-bold text-xl">الرحمة</div>
+<h1 class="font-amiri font-bold text-[21px] leading-tight text-center text-emerald-950">Bidang Kurikulum<br>Pesantren Ar-Rahmah<br><span class="text-emerald-700">Dewan Dakwah Sukabumi</span></h1>
+<p class="text-[10px] tracking-widest text-slate-400 mt-2 uppercase text-center">Portal Terpadu Tahfidz & Akademik</p><div class="w-12 h-1 bg-emerald-700 mx-auto mt-3 rounded-full"></div></div>
+<div class="space-y-3">
+<select id="inputNama" class="w-full px-4 py-3 border rounded-xl bg-white text-sm"><option value="">Pilih Nama Guru / Musyrif</option><option>Ustadz Ranidin Munte</option><option>Ustadz Irwan Maulana</option><option>Ustadz Mukri</option><option>Ustadz Roly Juanda</option><option>Ustadz Lucky Mardianto Pratama</option></select>
+<div class="relative"><input id="inputPass" type="password" class="w-full px-4 py-3 border rounded-xl pr-12 text-sm" placeholder="Password / Kode Akses"><button type="button" onclick="togglePass()" class="absolute right-3 top-1/2 -translate-y-1/2"><span id="eyeIcon">👁️</span></button></div>
+<div class="grid grid-cols-2 gap-3"><select id="inputKelas" class="w-full px-4 py-3 border rounded-xl text-sm bg-slate-50"><option value="">Pilih Kelas</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select><select id="inputSemester" class="w-full px-4 py-3 border rounded-xl text-sm bg-slate-50"><option value="">Semester</option><option>Ganjil 2025/2026</option><option>Genap 2025/2026</option><option>Ganjil 2026/2027</option><option>Genap 2026/2027</option></select></div>
+<button onclick="doLogin()" class="w-full bg-emerald-900 text-white py-3.5 rounded-xl font-bold">Masuk Portal</button>
+<div id="loginAlert" class="hidden bg-red-50 text-red-600 text-xs p-3 rounded-xl text-center"></div>
+<div class="text-[10px] text-slate-400 bg-slate-50 p-2 rounded-xl text-center">GURU: <b>Asatidz_Ar-Rahmah</b> | KURIKULUM: <b>Kurikulum_2026</b></div>
+</div></div></div>
+<div id="page-role" class="hidden min-h-screen bg-slate-50"><div class="bg-white border-b p-4 flex justify-between"><div><p id="roleNama" class="font-bold text-sm"></p><div class="flex gap-2 mt-1"><span id="roleKelasBadge" class="text-[11px] bg-emerald-100 px-2.5 py-1 rounded-full font-bold"></span><span id="roleSemesterBadge" class="text-[11px] bg-amber-100 px-2.5 py-1 rounded-full font-bold"></span></div></div><button onclick="doLogout()" class="text-xs px-3 py-2 bg-slate-800 text-white rounded-lg">Logout</button></div>
+<div class="max-w-4xl mx-auto p-6"><h2 class="text-2xl font-bold font-amiri text-center">Pilih Dashboard</h2><div class="grid md:grid-cols-2 gap-6 mt-6"><div onclick="openTahfidz()" class="cursor-pointer bg-gradient-to-br from-emerald-700 to-green-800 text-white rounded-[20px] p-8"><h3 class="text-xl font-bold">📖 Tahfidz</h3><p class="text-sm text-emerald-100 mt-1">Kelas & Semester bisa diubah di tabel input per santri</p></div><div onclick="openAkademik()" class="cursor-pointer bg-gradient-to-br from-blue-700 to-indigo-800 text-white rounded-[20px] p-8"><h3 class="text-xl font-bold">🎓 Akademik</h3><p class="text-sm text-blue-100 mt-1">Kelas & Semester bisa diubah di tabel input per santri</p></div></div></div></div>
+<div id="page-dashboard" class="hidden min-h-screen flex flex-col"><div class="bg-white border-b p-3 flex justify-between sticky top-0 z-10"><div class="flex gap-3 items-center"><button onclick="backToRole()" id="btnBack" class="px-3 py-1.5 border rounded-lg text-sm">← Dashboard</button><div><p id="dashTitle" class="font-bold text-sm"></p></div></div><span id="saveStatus" class="text-[11px] bg-slate-100 px-2.5 py-1 rounded-full">Belum Tersimpan</span></div>
+<div class="p-4 max-w-7xl mx-auto w-full space-y-4">
+<div id="sec-tahfidz" class="hidden space-y-4">
+<div class="flex justify-between items-center"><h2 class="font-bold">Input Tahfidz - Kelas & Semester Bisa Diubah Di Tabel</h2><div class="flex gap-2"><button onclick="exportTahfidzExcel()" class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs">📊 Excel</button><button onclick="exportTahfidzPDF()" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs">📄 PDF</button></div></div>
+<div class="bg-white rounded-2xl p-5 border">
+<div class="grid md:grid-cols-6 gap-3">
+<select id="tNama" onchange="autoKelasTahfidz()" class="border-2 border-emerald-200 rounded-xl p-2.5 text-sm font-semibold"><option value="">Pilih Santri</option></select>
+<select id="tKelasSantri" class="border-2 border-emerald-300 rounded-xl p-2.5 text-sm font-bold bg-white"><option value="">Kelas (ubah)</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select>
+<select id="tSemester" class="border-2 border-amber-300 rounded-xl p-2.5 text-sm font-bold bg-white"><option value="">Semester (ubah)</option><option>Ganjil 2025/2026</option><option>Genap 2025/2026</option><option>Ganjil 2026/2027</option><option>Genap 2026/2027</option></select>
+<input id="tJuz" class="border rounded-xl p-2.5 text-sm" placeholder="Juz & Surah">
+<input id="tTanggal" type="date" class="border rounded-xl p-2.5 text-sm">
+<input id="tPenguji" class="border rounded-xl p-2.5 text-sm" readonly>
+</div>
+<div class="mt-4 grid md:grid-cols-2 gap-6"><div class="space-y-2 text-sm"><label class="flex justify-between">Kelancaran (40)<input id="tA1" type="number" max="40" oninput="calcTahfidz()" class="w-20 border rounded-lg p-2 text-center"></label><label class="flex justify-between">Lahn Jali (30)<input id="tA2" type="number" max="30" oninput="calcTahfidz()" class="w-20 border rounded-lg p-2 text-center"></label><label class="flex justify-between">Lahn Khafi (20)<input id="tA3" type="number" max="20" oninput="calcTahfidz()" class="w-20 border rounded-lg p-2 text-center"></label><label class="flex justify-between">Makhraj (10)<input id="tA4" type="number" max="10" oninput="calcTahfidz()" class="w-20 border rounded-lg p-2 text-center"></label><div class="bg-emerald-50 p-3 rounded-xl flex justify-between font-bold">Nilai: <span id="tNilaiAkhir">0</span></div><div class="bg-slate-900 text-white p-3 rounded-xl flex justify-between">Predikat: <span id="tPredikat">-</span></div></div><div><textarea id="tCatatan" class="w-full border rounded-xl p-3 text-sm" rows="4" placeholder="Catatan Penguji..."></textarea><button onclick="simpanTahfidz()" class="w-full mt-3 bg-emerald-700 text-white py-3 rounded-xl font-semibold">Simpan ke Firebase</button></div></div>
+</div>
+<div class="bg-white rounded-2xl border overflow-auto"><div class="p-3 bg-amber-50 border-b text-xs font-bold">📋 Tabel Data - Kelas & Semester Bisa Di-Edit Langsung Klik Dropdown</div><table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-2">Tgl</th><th class="p-2">Santri</th><th class="p-2 bg-emerald-50">Kelas ✏️</th><th class="p-2 bg-amber-50">Semester ✏️</th><th class="p-2">Juz</th><th class="p-2">Nilai</th><th class="p-2">Predikat</th><th class="p-2">Aksi</th></tr></thead><tbody id="tbodyTahfidz"></tbody></table></div>
+</div>
+<div id="sec-akademik" class="hidden space-y-4">
+<div class="flex justify-between"><h2 class="font-bold">Input Akademik - Kelas & Semester Bisa Diubah Di Tabel</h2><div class="flex gap-2"><button onclick="exportAkadExcel()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-xs">📊 Excel</button><button onclick="exportAkadPDF()" class="bg-red-600 text-white px-3 py-2 rounded-lg text-xs">📄 PDF</button></div></div>
+<div class="bg-white rounded-2xl p-5 border">
+<div class="grid md:grid-cols-7 gap-3">
+<select id="aNama" onchange="autoKelasAkad()" class="border-2 border-blue-200 rounded-xl p-2.5 text-sm font-semibold"><option value="">Pilih Santri</option></select>
+<select id="aKelasSantri" class="border-2 border-blue-300 rounded-xl p-2.5 text-sm font-bold bg-white"><option value="">Kelas (ubah)</option><option>7A</option><option>7B</option><option>8A</option><option>8B</option><option>9A</option><option>9B</option></select>
+<select id="aSemester" class="border-2 border-amber-300 rounded-xl p-2.5 text-sm font-bold bg-white"><option value="">Semester (ubah)</option><option>Ganjil 2025/2026</option><option>Genap 2025/2026</option><option>Ganjil 2026/2027</option><option>Genap 2026/2027</option></select>
+<select id="aMapel" class="border rounded-xl p-2.5 text-sm"><option>Tauhid</option><option>Fiqih Ibadah</option><option>Bahasa Arab</option><option>Tahsin & Tajwid</option><option>Adab & Akhlak</option><option>Tarikh Islam</option><option>Syarah Hadits</option><option>Tazkiyatun Nafs</option></select>
+<input id="aTugas" type="number" oninput="calcAkad()" class="border rounded-xl p-2.5 text-sm" placeholder="Tugas">
+<input id="aUTS" type="number" oninput="calcAkad()" class="border rounded-xl p-2.5 text-sm" placeholder="UTS">
+<input id="aUAS" type="number" oninput="calcAkad()" class="border rounded-xl p-2.5 text-sm" placeholder="UAS">
+</div>
+<div class="mt-3 flex gap-4 items-center">Nilai Akhir: <b id="aNilaiAkhir" class="text-blue-700 text-lg">0</b><button onclick="simpanAkademik()" class="ml-auto bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm">Simpan</button></div>
+</div>
+<div class="bg-white rounded-2xl border overflow-auto"><div class="p-3 bg-amber-50 border-b text-xs font-bold">📋 Tabel Akademik - Kelas & Semester Bisa Di-Edit</div><table class="w-full text-sm"><thead class="bg-slate-50"><tr><th class="p-2">Santri</th><th class="p-2 bg-blue-50">Kelas ✏️</th><th class="p-2 bg-amber-50">Semester ✏️</th><th class="p-2">Mapel</th><th class="p-2">Akhir</th><th class="p-2">Guru</th><th class="p-2">Aksi</th></tr></thead><tbody id="tbodyAkad"></tbody></table></div>
+</div>
+</div></div>
+<script>
+let currentUser={},dataTahfidz=[],dataAkad=[];
+function initSantri(){const o=SANTRI_DATA.map(s=>`<option value="${s.name}" data-kelas="${s.kelas}">${s.name} - ${s.kelas}</option>`).join('');document.getElementById('tNama').innerHTML='<option value="">Pilih Santri</option>'+o;document.getElementById('aNama').innerHTML='<option value="">Pilih Santri</option>'+o;}
+initSantri();
+function autoKelasTahfidz(){const s=document.getElementById('tNama');const k=s.options[s.selectedIndex]?.dataset.kelas||'';document.getElementById('tKelasSantri').value=k;document.getElementById('tSemester').value=currentUser.semester||'Ganjil 2025/2026';}
+function autoKelasAkad(){const s=document.getElementById('aNama');const k=s.options[s.selectedIndex]?.dataset.kelas||'';document.getElementById('aKelasSantri').value=k;document.getElementById('aSemester').value=currentUser.semester||'Ganjil 2025/2026';}
+function togglePass(){const i=document.getElementById('inputPass'),e=document.getElementById('eyeIcon');if(i.type==='password'){i.type='text';e.innerText='🙈'}else{i.type='password';e.innerText='👁️'}}
+function doLogin(){const n=document.getElementById('inputNama').value,p=document.getElementById('inputPass').value,k=document.getElementById('inputKelas').value,s=document.getElementById('inputSemester').value,a=document.getElementById('loginAlert');if(!n||!p||!k||!s){a.innerText="Lengkapi Nama, Password, Kelas & Semester!";a.classList.remove('hidden');return}if(p==="Asatidz_Ar-Rahmah"){currentUser={nama:n,role:'GURU',kelas:k,semester:s};showRolePage()}else if(p==="Kurikulum_2026"){currentUser={nama:n,role:'KURIKULUM',kelas:k,semester:s};openKurikulum()}else{a.innerText="Password salah!";a.classList.remove('hidden')}}
+function showRolePage(){document.getElementById('page-login').classList.add('hidden');document.getElementById('page-role').classList.remove('hidden');document.getElementById('roleNama').innerText=currentUser.nama;document.getElementById('roleKelasBadge').innerText="Kelas: "+currentUser.kelas;document.getElementById('roleSemesterBadge').innerText="Smt: "+currentUser.semester;document.getElementById('tPenguji').value=currentUser.nama;listenFirebase()}
+function openTahfidz(){document.getElementById('page-role').classList.add('hidden');document.getElementById('page-dashboard').classList.remove('hidden');document.getElementById('sec-tahfidz').classList.remove('hidden');document.getElementById('sec-akademik').classList.add('hidden');document.getElementById('dashTitle').innerText="Tahfidz - "+currentUser.kelas+" | "+currentUser.semester;document.getElementById('tTanggal').valueAsDate=new Date();document.getElementById('tSemester').value=currentUser.semester}
+function openAkademik(){document.getElementById('page-role').classList.add('hidden');document.getElementById('page-dashboard').classList.remove('hidden');document.getElementById('sec-akademik').classList.remove('hidden');document.getElementById('sec-tahfidz').classList.add('hidden');document.getElementById('dashTitle').innerText="Akademik - "+currentUser.kelas+" | "+currentUser.semester;document.getElementById('aSemester').value=currentUser.semester}
+function openKurikulum(){document.getElementById('page-login').classList.add('hidden');document.getElementById('page-role').classList.add('hidden');document.getElementById('page-dashboard').classList.remove('hidden');listenFirebase()}
+function backToRole(){document.getElementById('page-dashboard').classList.add('hidden');document.getElementById('page-role').classList.remove('hidden')}
+function doLogout(){location.reload()}
+function calcTahfidz(){const a1=parseInt(document.getElementById('tA1').value)||0,a2=parseInt(document.getElementById('tA2').value)||0,a3=parseInt(document.getElementById('tA3').value)||0,a4=parseInt(document.getElementById('tA4').value)||0,tot=Math.min(100,a1+a2+a3+a4);document.getElementById('tNilaiAkhir').innerText=tot;let p="Perlu Bimbingan";if(tot>=90)p="Mumtaz";else if(tot>=80)p="Jayyid Jiddan";else if(tot>=70)p="Jayyid";else if(tot>=60)p="Maqbul";document.getElementById('tPredikat').innerText=p;return{total:tot,pred:p}}
+function calcAkad(){const t=parseInt(document.getElementById('aTugas').value)||0,u=parseInt(document.getElementById('aUTS').value)||0,s=parseInt(document.getElementById('aUAS').value)||0,a=Math.round((t+u+s)/3);document.getElementById('aNilaiAkhir').innerText=a;return a}
+function listenFirebase(){db.ref('tahfidz').on('value',snap=>{const v=snap.val()||{};dataTahfidz=Object.values(v);renderTahfidz()});db.ref('akademik').on('value',snap=>{const v=snap.val()||{};dataAkad=Object.values(v);renderAkad()})}
+function simpanTahfidz(){const {total,pred}=calcTahfidz();const payload={id:Date.now(),santri:document.getElementById('tNama').value,kelas:document.getElementById('tKelasSantri').value,semester:document.getElementById('tSemester').value,juz:document.getElementById('tJuz').value,tanggal:document.getElementById('tTanggal').value,nilai:total,predikat:pred,guru:currentUser.nama};if(!payload.santri||!payload.juz||!payload.kelas||!payload.semester){alert("Lengkapi Santri, Kelas, Semester & Juz!");return}db.ref('tahfidz/'+payload.id).set(payload).then(()=>{document.getElementById('saveStatus').innerText="Tersimpan ✅"})}
+function simpanAkademik(){const ak=calcAkad();const payload={id:Date.now(),santri:document.getElementById('aNama').value,kelas:document.getElementById('aKelasSantri').value,semester:document.getElementById('aSemester').value,mapel:document.getElementById('aMapel').value,tugas:document.getElementById('aTugas').value,uts:document.getElementById('aUTS').value,uas:document.getElementById('aUAS').value,nilaiAkhir:ak,guru:currentUser.nama};if(!payload.santri||!payload.kelas||!payload.semester){alert("Lengkapi Santri, Kelas, Semester!");return}db.ref('akademik/'+payload.id).set(payload).then(()=>{document.getElementById('saveStatus').innerText="Tersimpan ✅"})}
+function renderTahfidz(){document.getElementById('tbodyTahfidz').innerHTML=dataTahfidz.map(d=>`<tr class="border-b"><td class="p-2">${d.tanggal||''}</td><td class="p-2">${d.santri}</td><td class="p-2"><select onchange="updateKelasTahfid
